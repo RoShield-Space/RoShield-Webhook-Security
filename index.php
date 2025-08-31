@@ -199,31 +199,7 @@ $user_id = $_SESSION['user_id'];
             margin-top: 30px;
         }
 
-        .z4v-mascot {
-            position: fixed;
-            bottom: -70px;
-            left: -20px;
-            width: 200px;
-            height: auto;
-            transition: bottom 0.3s ease-in-out;
-            z-index: 99;
-            pointer-events: none;
-            transform: translateZ(0);
-        }
-
-        .z4v-mascot-link {
-            position: fixed;
-            bottom: -70px;
-            left: 0;
-            width: 160px;
-            height: 100px;
-            z-index: 100;
-            cursor: pointer;
-        }
-
-        .z4v-mascot-link:hover + .z4v-mascot {
-            bottom: -50px;
-        }
+        
 
         .webhook-card {
             background: var(--card-bg);
@@ -358,11 +334,9 @@ $user_id = $_SESSION['user_id'];
         <div class="container">
             <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px;">
                 <i class="fas fa-wind" style="font-size: 40px; margin: 15px 0; opacity: 0.7; color: var(--text-secondary);"></i>
-                <p style="font-size: 18px; font-weight: 500; color: var(--text-secondary);">Coming Soon with Z4V</p>
+                <p style="font-size: 18px; font-weight: 500; color: var(--text-secondary);">Coming Soon</p>
             </div>
         </div>
-        <a href="https://z4v.eu" class="z4v-mascot-link"></a>
-        <img src="https://z4v.eu/assets/z4v_mascot2.png" alt="Z4V Mascot" class="z4v-mascot">
     </main>
 
     <script>
