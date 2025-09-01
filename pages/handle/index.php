@@ -4,6 +4,19 @@ header('Content-Type: application/json');
 include '../../../db.php';
 include '../../db.php';
 
+if (!function_exists('aes_encrypt')) {
+function aes_encrypt(
+    $plaintext,
+    $key
+) {
+    $ivlen = openssl_cipher_iv_length($cipher = "AES-256-CBC");
+    $iv = openssl_random_pseudo_bytes($ivlen);
+    $ciphertext_raw = openssl_encrypt($plaintext, $cipher, $key, OPENSSL_RAW_DATA, $iv);
+    $hmac = hash_hmac('sha256', $ciphertext_raw, $key, true);
+    return base64_encode($iv . $hmac . $ciphertext_raw);
+}
+}
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(["error" => "Only POST method is allowed"]);
@@ -35,6 +48,7 @@ if ($w['disabled'] === 'TRUE') {
 }
 
 $ip = $_SERVER['REMOTE_ADDR'];
+$ip_enc = aes_encrypt((string)$ip, $_ENV['IP_AES_KEY']);
 
 function f($a, $b) {
     $b = trim($b);
@@ -84,7 +98,7 @@ $wid = $w['id'];
 
 if ($rl > 0) {
     $q = $pdo2->prepare("SELECT last_request FROM webhook_requests WHERE webhook_id = ? AND ip_address = ? ORDER BY last_request DESC LIMIT 1");
-    $q->execute([$wid, $ip]);
+    $q->execute([$wid, $ip_enc]);
     $lr = $q->fetch(PDO::FETCH_ASSOC);
 
     $now = time();
@@ -95,7 +109,7 @@ if ($rl > 0) {
 
         if ($dt < $rl) {
             $q = $pdo2->prepare("UPDATE webhook_requests SET last_request = NOW() WHERE webhook_id = ? AND ip_address = ?");
-            $q->execute([$wid, $ip]);
+            $q->execute([$wid, $ip_enc]);
 
             http_response_code(429);
             echo json_encode(["error" => "Rate limit exceeded, please try again later"]);
@@ -104,7 +118,7 @@ if ($rl > 0) {
     }
 
     $q = $pdo2->prepare("INSERT INTO webhook_requests (webhook_id, ip_address, last_request) VALUES (?, ?, NOW())");
-    $q->execute([$wid, $ip]);
+    $q->execute([$wid, $ip_enc]);
 }
 
 $raw = file_get_contents('php://input');
